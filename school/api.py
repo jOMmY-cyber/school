@@ -76,5 +76,40 @@ class APIProfile(APIView):
             return Response('failed have no act or detail', status=400)
 
 class APIClassroom(models.Model):
+    model = UserProfile
+    serializer = UserProfileSerializer
+    def get(self, request, *args, **kwargs):
+        try:
+            data = request.GET.dict()
+            obj = self.model.objects.filter(**data)
+            serializer = self.serializer(obj, many=True)
+            return Response(serializer.data, status=200)
+        except:
+            return Response('fail', status=400)
+
     def post(self, request, *args, **kwargs):
-        
+        data = request.data
+        act = data.get('act')
+        detail = data.get('detail')
+        if act == None:
+            return Response('........................',status = 400)
+        if detail == None:
+            return Response('-------------------------',status = 400)
+        if data == int:
+            return Response('------------------',status = 400)
+        if act == 'create':
+            market_group = super().get_chain(request)
+            serializer = self.serializer(data = detail,many=False)
+            if serializer.is_valid():
+                new = serializer.save(
+                    market_group = market_group,
+                    created_by_username = request.user.username,
+                    updated_by_username = request.user.username,
+                    created_on = timezone.now(),
+                )
+                print(request.user.username)
+                return Response(serializer.data,status=200)
+            if serializer.is_valid():
+                new_user = request.user
+
+class Room(models.Models):
